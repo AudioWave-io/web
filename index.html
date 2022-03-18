@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+          content="Create a rules based podcast playlist feed with automatic updates. Subscribe to the feed in any podcast player.">
+    <meta name="author" content="AudioWave">
+    <title>AudioWave - Smart Playlist Generator for Podcasts</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="col-lg-8 mx-auto p-3 py-md-5">
+    <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
+        <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
+            <svg style="border-radius: 5px" class="me-2" width="40px" height="40px" viewBox="0 0 1024 1024"
+                 version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                    <rect fill="#D8571D" x="0" y="0" width="1024" height="1024"></rect>
+                    <g id="Group-2" transform="translate(127.000000, 459.000000)" stroke="#8C400A"
+                       stroke-linecap="round" stroke-width="162">
+                        <line x1="0" y1="186" x2="108" y2="0" id="Line-2"></line>
+                        <line x1="108" y1="0" x2="216" y2="186" id="Line-2"></line>
+                    </g>
+                    <g id="Group" transform="translate(465.000000, 459.000000)" stroke="#8C400A" stroke-linecap="round"
+                       stroke-width="162">
+                        <line x1="433" y1="0" x2="325" y2="186" id="Line-2"></line>
+                        <line x1="324" y1="186" x2="216" y2="0" id="Line-2"></line>
+                        <line x1="216" y1="0" x2="108" y2="186" id="Line-2"></line>
+                        <line x1="108" y1="186" x2="0" y2="0" id="Line-2"></line>
+                    </g>
+                    <g id="Group-2" transform="translate(127.000000, 419.000000)" stroke="#FCC800"
+                       stroke-linecap="round" stroke-width="162">
+                        <line x1="0" y1="186" x2="108" y2="0" id="Line-2"></line>
+                        <line x1="108" y1="0" x2="216" y2="186" id="Line-2"></line>
+                    </g>
+                    <g id="Group" transform="translate(465.000000, 419.000000)" stroke="#FCC800" stroke-linecap="round"
+                       stroke-width="162">
+                        <line x1="433" y1="0" x2="325" y2="186" id="Line-2"></line>
+                        <line x1="324" y1="186" x2="216" y2="0" id="Line-2"></line>
+                        <line x1="216" y1="0" x2="108" y2="186" id="Line-2"></line>
+                        <line x1="108" y1="186" x2="0" y2="0" id="Line-2"></line>
+                    </g>
+                </g>
+            </svg>
+            <span class="fs-4">AudioWave</span>
+        </a>
+    </header>
+
+    <main>
+        <h1> Smart Playlist Generator for Podcasts</h1>
+        <p class="fs-5">Create a rules based podcast playlist feed with automatic updates.
+            Subscribe to the feed in any <a target="_blank" style="text-decoration: none; color: #212529"
+                                            href="https://apps.apple.com/us/app/audiowave-podcast-player/id1602776751">podcast
+                player</a>.</p>
+
+        <hr class="">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="mb-3">
+                    <label style="font-weight: bold" for="playlistName" class="form-label">Playlist Name</label>
+                    <input type="text" class="form-control" id="playlistName" aria-describedby="playlist name">
+                    <div class="form-text">This will appear as your feed's name.</div>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight: bold" for="sourceSearch" class="form-label">Playlist Sources</label>
+                    <input onkeyup="processChange()" type="text" class="form-control" id="sourceSearch"
+                           aria-describedby="source search"
+                           placeholder="Search for podcasts by name">
+                    <div class="form-text">Episodes for this playlist will be chosen from the playlist sources.</div>
+                    <div class="row" style="display: flex; padding-top: 1rem;" id="sources">
+
+                    </div>
+                    <div class="row" style="display: flex; padding-top: 1rem;" id="sourcesSearch">
+
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label style="font-weight: bold" for="sourceSearch" class="form-label">Rules</label>
+                    <div id="rules-list"></div>
+
+
+                </div>
+
+                <div class="mb-3">
+                    <div class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Another
+                        Rule
+                    </div>
+                    <div class="form-text">These rules will filter episodes to add to the playlist.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted" id="playlistStats"></h6>
+            </div>
+            <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#playlistModal">View Playlist</div>
+            <br>
+            <div id="feed-info">
+                <span>Feed Url</span>
+                <a href="http://10.0.1.18:8080/">http://10.0.1.18:8080/</a>
+                <div class="btn btn-outline-primary">Copy Feed Url</div>
+            </div>
+
+        </div>
+    </main>
+    <footer class="pt-5 my-5 text-muted border-top">
+        &copy; 2022 AudioWave.io
+    </footer>
+</div>
+
+
+<div class="modal fade" id="playlistModal" tabindex="-1" aria-labelledby="rules selector modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Your Smart Playlist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="playlist-modal-results">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="rules selector modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Select A Rule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-rules">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<script>
+    async function postData(url = '', data = {}) {
+        // Default options are marked with *
+        const response = await fetch(url, {
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, *cors, same-origin
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, *same-origin, omit
+            headers: {
+                'Content-Type': 'application/json',
+                'x-aw-key': userToken
+                // 'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            redirect: 'follow', // manual, *follow, error
+            referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+            body: JSON.stringify(data) // body data type must match "Content-Type" header
+        });
+        return response.json(); // parses JSON response into native JavaScript objects
+    }
+
+    function uuidv4() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+</script>
+
+<script>
+
+    var myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {})
+
+    let ruleChoices = [
+        {
+            text: 'Episode Released',
+            description: 'Selects episodes released in a specific timeframe',
+            defaultOp: 'in past 7 days',
+            options: [
+                'in past 24 hours',
+                'in past 2 days',
+                'in past 5 days',
+                'in past 7 days',
+                'in past month',
+                'in past year'
+            ]
+        },
+        {
+            text: 'Date Published',
+            description: 'Selects episodes from a specific date',
+            defaultOp: 'is before',
+            options: [
+                'is before',
+                'is after',
+            ]
+        },
+        {
+            text: 'Duration', description: 'Selects episodes with a specific duration',
+            defaultOp: 'is greater than',
+            options: [
+                'equals',
+                'is greater than',
+                'is less than'
+            ]
+        },
+        {
+            text: 'Is Explicit', description: 'Selects episodes with explicit content',
+            defaultOp: null,
+            options: []
+        },
+        {
+            text: 'Is Not Explicit', description: 'Selects episodes without explicit content',
+            defaultOp: null,
+            options: []
+        },
+        {
+            text: 'Episode Title',
+            description: 'Selects episodes with specific titles',
+            defaultOp: 'contains',
+            options: [
+                'contains',
+                'does not contain',
+                'is exactly',
+                'starts with',
+                'ends with'
+            ]
+        },
+        {
+            text: 'Episode Description',
+            description: 'Selects episodes with specific descriptions',
+            defaultOp: 'contains',
+            options: [
+                'contains',
+                'does not contain',
+                'is exactly',
+                'starts with',
+                'ends with'
+            ]
+        },
+        {
+            text: 'Listen Status', description: 'Selects new, or completed episodes', defaultOp: 'is new',
+            options: ['is new',
+                'is completed']
+        },
+        {
+            text: 'Max Episodes',
+            description: 'Sets a maximum number of episodes to include in playlist',
+            defaultOp: 'for playlist',
+            options: ['for playlist',
+                'per show']
+        }]
+
+    let selectedRules = [{
+        "key": "Max Episodes",
+        "operator": "for playlist",
+        "value": 1000
+    }]
+    let selectedSources = []
+    let resSources = []
+    let playlistItems = []
+    let userToken = null
+    let playlistUUID = uuidv4()
+
+    async function init() {
+        let newToken = await postData(`https://api.audiowave.io/account/register`,{})
+        userToken = newToken.token
+        for (let rule of ruleChoices) {
+            document.querySelector('#modal-rules').innerHTML += `
+                <div class="modal-rule" onclick="selectRule('${rule.text}')">
+                    <div class="modal-desc">
+                        <span style="font-weight:bold">${rule.text}</span>
+                        <span>${rule.description}</span>
+                    </div>
+
+                </div>
+            `
+        }
+        renderRules()
+        document.querySelector('#feed-info').innerHTML = `
+            <span>Feed Url</span><br>
+            <a href="http://10.0.1.18:4000/feed/${playlistUUID}">http://10.0.1.18:4000/feed/${playlistUUID}</a><br>
+            <div class="btn btn-outline-primary">Copy Feed Url</div><br>
+        `
+    }
+
+    function renderSelectedSources() {
+        document.querySelector('#sources').innerHTML = ''
+        let idx = 0;
+        for (let pod of selectedSources) {
+            let template = `
+                <div class="col-4">
+                    <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; border: 1px solid #c1c2c3; border-radius: 5px; margin:0.5rem; padding:0.5rem">
+                        <img style="height: 50px; width: 50px;"
+                             src="${pod.artwork_url}">
+                        <span style="font-size: 0.75rem;">${pod.title}</span>
+                        <div class="btn btn-danger btn-sm" onclick='removeSource(${idx})'>Remove</div>
+                    </div>
+                </div>
+            `
+            document.querySelector('#sources').innerHTML += template
+            idx += 1;
+        }
+    }
+
+    function addSource(id, index) {
+        selectedSources.push({...resSources.podcasts.find(r => r.id === id)})
+        document.querySelector(`#search_${index}`).remove()
+        renderSelectedSources()
+
+        computePlaylist()
+    }
+
+    function removeSource(idx){
+        selectedSources.splice(idx, 1)
+        renderSelectedSources()
+        computePlaylist()
+    }
+
+    function selectRule(ruleStr) {
+        console.log(ruleStr)
+        myModal.hide()
+        let rule = ruleChoices.find(rule => rule.text === ruleStr)
+        selectedRules.push({key: rule.text, operator: rule.defaultOp, userLabel: rule.text})
+        renderRules()
+        computePlaylist()
+    }
+
+    function removeRule(idx) {
+        selectedRules.splice(idx, 1)
+        renderRules()
+        computePlaylist()
+    }
+
+    function renderRules() {
+        document.querySelector('#rules-list').innerHTML = ''
+        let ruleIdx = 0;
+        for (let rule of selectedRules) {
+            let options = `<select  onchange='computePlaylist()' id='op_${ruleIdx}' class="form-control">`
+            options += `<option value='${rule.operator}'>${rule.operator}</option>`
+            for (let opt of ruleChoices.find(r => r.text === rule.key).options.filter(r => r !== rule.operator)) {
+                options += `<option value='${opt}'>${opt}</option>`
+            }
+            options += `</select>`
+
+            if (ruleChoices.find(r => r.text === rule.key).options.length === 0) {
+                options = ''
+            }
+
+            let inputView = ``
+
+
+            switch (rule.key) {
+                case 'Date Published':
+                    inputView = `<input id='val_${ruleIdx}' value="${rule.value}" onchange='computePlaylist()' class="form-control" type="date">`
+                    break;
+                case 'Duration':
+                    inputView = `<input id='val_${ruleIdx}' value="${rule.value}" onkeyup='computePlaylist()' onchange='computePlaylist()' type="number"> minutes`
+                    break;
+                case 'Episode Title':
+                    inputView = `<input id='val_${ruleIdx}' value="${rule.value}" onkeyup='computePlaylist()' class="form-control" type="text">`
+                    break;
+                case 'Episode Description':
+                    inputView = `<input id='val_${ruleIdx}' value="${rule.value}" onkeyup='computePlaylist()' class="form-control" type="text">`
+                    break;
+                case 'Max Episodes':
+                    inputView = `<input id='val_${ruleIdx}' value="${rule.value}" onkeyup='computePlaylist()' onchange='computePlaylist()' class="form-control" type="number">`
+                    break;
+            }
+            console.log(rule)
+
+            let template = `
+                <div class="rule">
+                    <div class="rule-name">
+                        <select class="form-control">
+                            <option>
+                                ${rule.key}
+                            </option>
+                        </select>
+
+                    </div>
+                    <div class="rule-operator">
+                        ${options}
+                    </div>
+                    <div class="rule-value">
+                      ${inputView}
+                    </div>
+                    <div class="rule-delete">
+                        <div onclick=removeRule(${ruleIdx}) class="btn btn-sm btn-danger">Remove Rule</div>
+                    </div>
+                </div>`
+
+            document.querySelector('#rules-list').innerHTML += template
+            ruleIdx += 1
+        }
+
+
+    }
+
+    async function computePlaylist() {
+        let idx = 0;
+        for (let rule of selectedRules) {
+            let op = document.querySelector(`#op_${idx}`)?.value
+            let val = document.querySelector(`#val_${idx}`)?.value
+            rule.operator = op
+            rule.value = val
+            idx += 1;
+        }
+        console.log(JSON.stringify(selectedRules))
+        let str = JSON.stringify(selectedRules)
+        await postData(`http://10.0.1.18:4000/account/playlist`,{
+            podIds: selectedSources.map(source=>source.id),
+            rules: str,
+            playlist_uuid: playlistUUID,
+            name: document.querySelector('#playlistName').value
+        })
+
+        let res = await postData(`http://10.0.1.18:4000/playlist`,{
+            sourceIds: selectedSources.map(source=>source.id),
+            rules: selectedRules
+        })
+        playlistItems = res
+        let durationSeconds = 0
+        let newPlaylistHtml = ''
+        for(let item of playlistItems){
+            durationSeconds += item.duration_seconds
+            newPlaylistHtml += `
+                <div style='display:flex;'>
+                    <img style="height:40px; width:40px; margin-right:1rem;" src='${item.artwork_url}'>
+                    <div style='display:flex; flex-direction:column'>
+                        <span>${item.title}</span>
+                        <span style='font-size:0.75rem;'>${secondsToString(item.duration_seconds).hoursStr} ${secondsToString(item.duration_seconds).minStr}</span>
+                        <span  style='font-size:0.75rem;'>${item.dt_published}</span>
+                    </div>
+                </div>
+                <hr>
+            `
+        }
+        document.querySelector(`#playlist-modal-results`).innerHTML = newPlaylistHtml
+        document.querySelector(`#playlistStats`).innerHTML = `<span>${playlistItems.length} Episodes • ${secondsToString(durationSeconds).hoursStr} ${secondsToString(durationSeconds).minStr}</span>`
+
+
+    }
+
+    async function search() {
+        document.querySelector('#sourcesSearch').innerHTML = ''
+        let s = document.querySelector('#sourceSearch').value
+        let res = await fetch(`http://10.0.1.18:4000/search?entity=podcasts&q=${s}`, {
+            headers: {
+                'X-AW-key': 'ec55eccc-5135-471c-99ac-79fa229f81fa-c5d101ac-74a4-4cb2-a3e5-c3ade662c806'
+            }
+        })
+        res = await res.json()
+        resSources = res
+        let searchIdx = 0
+        for (let pod of res.podcasts.slice(0,9)) {
+            let template = `
+                <div class="col-4" id='search_${searchIdx}'>
+                    <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; border: 1px solid #c1c2c3; border-radius: 5px; margin:0.5rem; padding:0.5rem">
+                        <img style="height: 50px; width: 50px;"
+                             src="${pod.artwork_url}">
+                        <span style="font-size: 0.75rem;">${pod.title}</span>
+                        <div class="btn btn-primary btn-sm" onclick='addSource(${pod.id}, ${searchIdx})'>Add</div>
+                    </div>
+                </div>
+            `
+            document.querySelector('#sourcesSearch').innerHTML += template
+            searchIdx += 1;
+        }
+    }
+
+
+    function secondsToString(durationSeconds){
+        let hoursStr = "0h"
+        let minStr = "0m"
+        let hours = Math.floor(durationSeconds / 3600);
+        var minutes = Math.floor((durationSeconds - (hours * 3600)) / 60);
+
+        if (durationSeconds >= 3600) {
+            hoursStr = hours + "h"
+            minStr = minutes + "m"
+        }
+        if (durationSeconds < 3600) {
+            minStr = minutes + "m"
+        }
+        return {hoursStr, minStr}
+    }
+
+    function debounce(func, timeout = 500) {
+        let timer;
+        return (...args) => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                func.apply(this, args);
+            }, timeout);
+        };
+    }
+
+    const processChange = debounce(() => search());
+
+    init()
+
+
+</script>
+
+<style>
+    .rule {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.25rem;
+        align-items: center;
+        border: 1px solid #e1e1e1;
+    }
+
+    .rule-value {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-rule {
+        background-color: rgba(13, 110, 253, 0.39);
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        border: 1px solid #e1e1e1;
+        margin-bottom: 0.25rem;
+        padding: 0.5rem;
+        align-items: center;
+    }
+
+    .modal-desc {
+        display: flex;
+        justify-content: start;
+        flex-direction: column;
+    }
+
+    .modal-rule:hover {
+        background-color: #0d6efd;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+
+
