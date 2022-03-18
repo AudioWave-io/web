@@ -288,7 +288,7 @@
         renderRules()
         document.querySelector('#feed-info').innerHTML = `
             <span>Feed Url</span><br>
-            <a href="http://10.0.1.18:4000/feed/${playlistUUID}">http://10.0.1.18:4000/feed/${playlistUUID}</a><br>
+            <a href="http://api.audiowave.io/feed/${playlistUUID}">http://api.audiowave.io/feed/${playlistUUID}</a><br>
             <div class="btn btn-outline-primary">Copy Feed Url</div><br>
         `
     }
@@ -417,14 +417,14 @@
         }
         console.log(JSON.stringify(selectedRules))
         let str = JSON.stringify(selectedRules)
-        await postData(`http://10.0.1.18:4000/account/playlist`,{
+        await postData(`http://api.audiowave.io/account/playlist`,{
             podIds: selectedSources.map(source=>source.id),
             rules: str,
             playlist_uuid: playlistUUID,
             name: document.querySelector('#playlistName').value
         })
 
-        let res = await postData(`http://10.0.1.18:4000/playlist`,{
+        let res = await postData(`http://api.audiowave.io/playlist`,{
             sourceIds: selectedSources.map(source=>source.id),
             rules: selectedRules
         })
@@ -454,7 +454,7 @@
     async function search() {
         document.querySelector('#sourcesSearch').innerHTML = ''
         let s = document.querySelector('#sourceSearch').value
-        let res = await fetch(`http://10.0.1.18:4000/search?entity=podcasts&q=${s}`, {
+        let res = await fetch(`http://api.audiowave.io/search?entity=podcasts&q=${s}`, {
             headers: {
                 'X-AW-key': 'ec55eccc-5135-471c-99ac-79fa229f81fa-c5d101ac-74a4-4cb2-a3e5-c3ade662c806'
             }
