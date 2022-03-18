@@ -16,7 +16,7 @@
     <header class="d-flex align-items-center pb-3 mb-5 border-bottom">
         <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
             <svg style="border-radius: 5px" class="me-2" width="40px" height="40px" viewBox="0 0 1024 1024"
-                 version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                 version="1.1" xmlns="https://www.w3.org/2000/svg" xmlns:xlink="https://www.w3.org/1999/xlink">
                 <g id="Artboard" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
                     <rect fill="#D8571D" x="0" y="0" width="1024" height="1024"></rect>
                     <g id="Group-2" transform="translate(127.000000, 459.000000)" stroke="#8C400A"
@@ -104,7 +104,7 @@
             <br>
             <div id="feed-info">
                 <span>Feed Url</span>
-                <a href="http://10.0.1.18:8080/">http://10.0.1.18:8080/</a>
+                <a href="https://10.0.1.18:8080/">https://10.0.1.18:8080/</a>
                 <div class="btn btn-outline-primary">Copy Feed Url</div>
             </div>
 
@@ -288,7 +288,7 @@
         renderRules()
         document.querySelector('#feed-info').innerHTML = `
             <span>Feed Url</span><br>
-            <a href="http://api.audiowave.io/feed/${playlistUUID}">http://api.audiowave.io/feed/${playlistUUID}</a><br>
+            <a href="https://api.audiowave.io/feed/${playlistUUID}">https://api.audiowave.io/feed/${playlistUUID}</a><br>
             <div class="btn btn-outline-primary">Copy Feed Url</div><br>
         `
     }
@@ -417,14 +417,14 @@
         }
         console.log(JSON.stringify(selectedRules))
         let str = JSON.stringify(selectedRules)
-        await postData(`http://api.audiowave.io/account/playlist`,{
+        await postData(`https://api.audiowave.io/account/playlist`,{
             podIds: selectedSources.map(source=>source.id),
             rules: str,
             playlist_uuid: playlistUUID,
             name: document.querySelector('#playlistName').value
         })
 
-        let res = await postData(`http://api.audiowave.io/playlist`,{
+        let res = await postData(`https://api.audiowave.io/playlist`,{
             sourceIds: selectedSources.map(source=>source.id),
             rules: selectedRules
         })
@@ -454,7 +454,7 @@
     async function search() {
         document.querySelector('#sourcesSearch').innerHTML = ''
         let s = document.querySelector('#sourceSearch').value
-        let res = await fetch(`http://api.audiowave.io/search?entity=podcasts&q=${s}`, {
+        let res = await fetch(`https://api.audiowave.io/search?entity=podcasts&q=${s}`, {
             headers: {
                 'X-AW-key': 'ec55eccc-5135-471c-99ac-79fa229f81fa-c5d101ac-74a4-4cb2-a3e5-c3ade662c806'
             }
