@@ -103,9 +103,6 @@
             <div class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#playlistModal">View Playlist</div>
             <br>
             <div id="feed-info">
-                <span>Feed Url</span>
-                <a href="https://10.0.1.18:8080/">https://10.0.1.18:8080/</a>
-                <div class="btn btn-outline-primary">Copy Feed Url</div>
             </div>
 
         </div>
@@ -168,12 +165,6 @@
             body: JSON.stringify(data) // body data type must match "Content-Type" header
         });
         return response.json(); // parses JSON response into native JavaScript objects
-    }
-
-    function uuidv4() {
-        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
-            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-        );
     }
 </script>
 
@@ -269,11 +260,25 @@
     let resSources = []
     let playlistItems = []
     let userToken = null
-    let playlistUUID = uuidv4()
+    let playlistUUID;
 
     async function init() {
+        const params = new Proxy(new URLSearchParams(window.location.search), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
         let newToken = await postData(`https://api.audiowave.io/account/register`,{})
         userToken = newToken.token
+        if(params.feed){
+            let res = await fetch(`https://api.audiowave.io/playlist?id=${params.feed}`)
+            let existingPlaylist = await res.json()
+            selectedRules = JSON.parse(existingPlaylist.rules)
+            selectedSources = existingPlaylist.pods
+            console.log(existingPlaylist.pods)
+            playlistUUID = existingPlaylist.playlist_uuid
+            renderSelectedSources()
+        } else {
+            playlistUUID = (await postData('https://api.audiowave.io/new-playlist')).uuid
+        }
         for (let rule of ruleChoices) {
             document.querySelector('#modal-rules').innerHTML += `
                 <div class="modal-rule" onclick="selectRule('${rule.text}')">
@@ -289,8 +294,25 @@
         document.querySelector('#feed-info').innerHTML = `
             <span>Feed Url</span><br>
             <a href="https://api.audiowave.io/feed/${playlistUUID}">https://api.audiowave.io/feed/${playlistUUID}</a><br>
-            <div class="btn btn-outline-primary">Copy Feed Url</div><br>
+            <button class="btn btn-outline-primary" onclick='copyFeed()'>Copy Feed Url</button><br>
         `
+    }
+
+    function copyFeed(){
+        copyToClipboard(`https://api.audiowave.io/feed/${playlistUUID}`)
+    }
+
+    function copyToClipboard(text) {
+        var dummy = document.createElement("textarea");
+        // to avoid breaking orgain page when copying more words
+        // cant copy when adding below this code
+        // dummy.style.display = 'none'
+        document.body.appendChild(dummy);
+        //Be careful if you use texarea. setAttribute('value', value), which works with "input" does not work with "textarea". – Eduard
+        dummy.value = text;
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
     }
 
     function renderSelectedSources() {
@@ -454,9 +476,10 @@
     async function search() {
         document.querySelector('#sourcesSearch').innerHTML = ''
         let s = document.querySelector('#sourceSearch').value
+        s = '"'+s+'"'
         let res = await fetch(`https://api.audiowave.io/search?entity=podcasts&q=${s}`, {
             headers: {
-                'X-AW-key': 'ec55eccc-5135-471c-99ac-79fa229f81fa-c5d101ac-74a4-4cb2-a3e5-c3ade662c806'
+                'X-AW-key': userToken
             }
         })
         res = await res.json()
